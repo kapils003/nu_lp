@@ -216,21 +216,6 @@ if(!class_exists('Groups'))
 
             }
         // Get all the users for a single group    
-          /* public function get_users_for_a_group($post_id){
-           $blogusers = get_users( array( 'fields' => array( 'display_name', 'ID' ) ) );
-            // get post meta - current post ID
-            $post_id = $_REQUEST['post'];
-            $group_users = get_post_meta( $post_id, 'm_username',true );
-
-            // compare post meta users, all userrs
-            foreach ( $blogusers as $user ) {
-                $is_selected = " ";
-                if( ( $group_users !== false ) && ( array_search($user->ID, $group_users ) !== false ) ) {
-                    $is_selected = "selected=''"; 
-                }
-                $to_print = sprintf("<option %s value='%s'>%s</option>", $is_selected, $user->ID, esc_html( $user->display_name) );
-                echo $to_print;
-            } ?> */
             public function is_user_in_role( $user_id, $roles  ) {
                 $blogusers = get_users( array( 'fields' => array( 'display_name', 'ID' ) ) );
                 $post_id = 5;
@@ -238,34 +223,31 @@ if(!class_exists('Groups'))
                 $user = new WP_User( $user_id );
                 if ( !empty( $user->roles ) && is_array( $user->roles ) ) {
                     foreach ( $user->roles as $role )
-                        print_r($role);
+                        echo $role;
                 }
-                if($roles == $role){
                     foreach ( $blogusers as $user ) {
-                        $is_selected = " ";
-                        if( ( $group_users !== false ) && ( array_search($user_id, $group_users ) !== false ) ) {
-                            $is_selected = "selected=''"; 
+                        if( ( $roles === $role ) && ( array_search($user_id, $group_users ) !== false ) ) {
+                           var_dump($user->display_name); 
+                           echo '<br>';            
+                     }else{
+                           
                         }
-                        $to_print = sprintf("<option %s value='%s'>%s</option>", $is_selected, $user->ID, esc_html( $user->display_name) );
-                        echo $to_print; }
-                     }elseif($role == false){
-                        foreach ( $blogusers as $user ) {
-                            $is_selected = " ";
-                            if( ( $group_users !== false ) && ( array_search($user_id, $group_users ) !== false ) ) {
-                                $is_selected = "selected=''"; 
-                            }
-                            $to_print = sprintf("<option %s value='%s'>%s</option>", $is_selected, $$user_id, esc_html( $user->display_name) );
-                            echo $to_print;
-                        }
-                    }
+                }    
+                echo "No Users"; 
             }
-            public function list_of_learning_programs($id, $post_type){
-
+            public function all_the_groups($id, $post_type){
+                $groups = get_user_meta( $id ,'group_id', true );
+                foreach ($groups as $groups_ids) {
+                $posts = query_posts(array('p' => $groups_ids,'post_type'=> $post_type));
+                foreach ($posts as $post) {
+                      echo $post->post_title;
+                  }  
+                  echo ',';
+                }
             }
     } // END class Groups
-} // END if(!class_exists('Groups'))
+} // END if(!class_exists('Groups'))*-+
 
-
-$group = new Groups();
-
-$group->is_user_in_role(2,'subscriber');
+//$group = new Groups();
+//$group->all_the_groups(4,'group');
+//$group->is_user_in_role(2,'subscriber');

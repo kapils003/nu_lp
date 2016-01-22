@@ -235,6 +235,7 @@ if(!class_exists('Groups'))
                 }    
                 echo "No Users"; 
             }
+            // Return All the groups using two parametes post_id and post type.
             public function all_the_groups($id, $post_type){
                 $groups = get_user_meta( $id ,'group_id', true );
                 foreach ($groups as $groups_ids) {
@@ -245,9 +246,15 @@ if(!class_exists('Groups'))
                   echo ',';
                 }
             }
+            //Add user to single group (pass user ID and group ID to that)
+            public function Add_user_to_single_group($user_id , $post_id){
+                    $u_id[] = $user_id;
+                    update_post_meta($post_id,'m_username', $_POST[$u_id]);
+            }
     } // END class Groups
 } // END if(!class_exists('Groups'))*-+
 
-//$group = new Groups();
+  $group = new Groups();
 //$group->all_the_groups(4,'group');
 //$group->is_user_in_role(2,'subscriber');
+//$group->Add_user_to_single_group(1 , 5);

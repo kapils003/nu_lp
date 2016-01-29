@@ -1,12 +1,12 @@
 <?php
 /*
 /**
- * Plugin Name: Nucleo LP Groups
- * Plugin URI: http://nucleo.com/
+ * Plugin Name: NuCLO
+ * Plugin URI: https://allnuclo.com/
  * Description: This plugin adds user groups to WordPress.
  * Version: 1.0.0
  * Author: kapil Sharma
- * Author URI: http://nucleo.com/
+ * Author URI: https://allnuclo.com/
  * License: GPL2
  */
 
@@ -20,16 +20,11 @@ if(!class_exists('lp_group'))
 		 */
 		public function __construct()
 		{
-			// Initialize Settings
-	/*		require_once(sprintf("%s/settings.php", dirname(__FILE__)));
-			$lp_group_Settings = new lp_group_Settings();*/
-
 			// Register custom post types
 			require_once(sprintf("%s/post-types/lp-group-pt.php", dirname(__FILE__)));
 			$Post_Type_Template = new Groups();
 
 			$plugin = plugin_basename(__FILE__);
-			add_filter("plugin_action_links_$plugin", array( $this, 'plugin_settings_link' ));
 		} // END public function __construct
 
 		/**

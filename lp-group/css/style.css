@@ -1,87 +1,10 @@
 .list-table{
 	width: 100% !important;
 }
-/*.chosen-choices{
-	background-color: #fff;
-    background-image: -moz-linear-gradient(center bottom , white 85%, #eeeeee 99%);
-    cursor: text;
-    height: auto !important;
-    margin: 0;
-    overflow: hidden;
-    padding: 0;
-    position: relative;
-}
-.search-field{
-	background-clip: padding-box;
-    background-color: #e4e4e4;
-    background-image: -moz-linear-gradient(center bottom , #e4e4e4 0%, #eeeeee 70%);
-    color: #333;
-    line-height: 13px;
-    position: relative;
-}
-.active-result{
-    margin: 0 4px 4px 0;
-    max-height: 190px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding: 0 0 0 4px;
-    position: relative;
-}
-
-.chosen-results li{
-	line-height: 80%;
-	padding: 7px 7px 8px;
-	margin: 0px;
-	list-style: outside none none;
-}
-.result-selected{
-	display: none;
-}
-
-.chosen-choices .search-field input {
-    padding: 5px;
-    margin: 1px 0px;
-    outline: 0px none;
-    box-shadow: none;
-}
-.chosen-choices li.search-choice{
-	background-clip: padding-box;
-    background-color: #eeeeee;
-    background-image: linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-    background-repeat: repeat-x;
-    background-size: 100% 19px;
-    box-shadow: 0 0 2px white inset, 0 1px 0 rgba(0, 0, 0, 0.05);
-    color: #333;
-    cursor: default;
-    line-height: 13px;
-    margin: 3px 5px 3px 0;
-    max-width: 100%;
-    padding: 3px 20px 3px 5px;
-    position: relative;
-}
-.chosen-choices li {
-    float: left;
-    list-style: outside none none;
-}
-ul li {
-    list-style: outside none disc;
-}
-.chosen-drop {
-    background: #FFF none repeat scroll 0% 0%;
-    border-width: 0px 1px 1px;
-    border-style: none solid solid;
-    border-color: -moz-use-text-color #AAA #AAA;
-    -moz-border-top-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    border-image: none;
-    top: 29px;
-    box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.15);
-    z-index: 999;
-}*/
-
 /* @group Base */
+#add_users_chosen{
+  width: 150px !important;
+}
 select.chosen-select {
   visibility: hidden;
   height: 28px !important;

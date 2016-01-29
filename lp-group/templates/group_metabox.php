@@ -10,12 +10,12 @@
             $post_id = $_REQUEST['post'];
             $group_users = get_post_meta( $post_id, 'm_username',true );
 
-            // compare post meta users, all userrs
+            // compare post meta users, all users
 
             foreach ( $blogusers as $user ) {
                 $user_id[] = $user->ID;
                 $is_selected = " ";
-                if( ( $group_users !== false ) && ( array_search($user->ID, $group_users ) !== false ) ) {
+                if( ( $group_users !== false ) && is_array($group_users) && ( array_search($user->ID, $group_users ) !== false ) ) {
                     $is_selected = "selected=''"; 
                 }
                 $to_print = sprintf("<option %s value='%s'>%s</option>", $is_selected, $user->ID, esc_html( $user->display_name) );

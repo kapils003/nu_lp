@@ -83,31 +83,8 @@ if(!class_exists('Groups'))
                 {
                     // Update the post's meta field
                     update_post_meta($post_id, $field_name, $_POST[$field_name]);
-
-/*                    // we will be updating usermeta only if your current meta field is m_username
-                    if( $field_name == 'm_username' ) {
-                        $user_ids = $_POST[$field_name];
-                        foreach( $user_ids as $user_id ) {
-                            $current_group_ids = get_user_meta($user_id,'group_id',true);
-
-                            // if user does not have group_id, we save current $post_id as array
-                            if( $current_group_ids == false ) {
-                                update_user_meta( $user_id, 'group_id', array( $post_id ) );
-                                continue;
-                            }
-
-                            // if user has the group_id meta field, we need to check if group ID is already there
-                            if (array_search($post_id, $current_group_ids ) === false){
-                                // current group_id is not there, we add it to current_group_ids array and save
-                                $current_group_ids[] = $post_id;
-                                update_user_meta($user_id, 'group_id', $current_group_ids);
-                            } else {
-                                // group_id already there, we continue to next user
-                                continue;
-                            }
-                        }
-                    }*/
                 }
+                update_post_meta($post_id, 'm_groups',$_POST['m_groups']);
             }
             else
             {
@@ -122,6 +99,7 @@ if(!class_exists('Groups'))
         {           
             // Add metaboxes
             add_action('add_meta_boxes', array(&$this, 'add_meta_boxes'));
+            add_action('add_meta_boxes', array(&$this, 'add_lp_meta_boxes'));           
         }    
         
          // END public function admin_init()
@@ -139,122 +117,171 @@ if(!class_exists('Groups'))
                 self::POST_TYPE
                 );                  
         } // END public function add_meta_boxes()
-
         /**
          * called off of the add meta box
          */     
         public function add_inner_meta_boxes($post)
         {       
-            // Render the job order metabox
+            // Render the job order meta box
             include(sprintf("%s/../templates/%s_metabox.php", dirname(__FILE__), self::POST_TYPE));         
         } // END public function add_inner_meta_boxes($post)
-
-/*        public function show_group_ids() { ?>
- 
-                    <h3>Groups</h3>
-            <table class="form-table">
-                <tr>
-                    <th><label>Groups</label></th>
-                    <td><input type="text" name= 'group_id' value="<?php 
-                    global $profileuser;
-                    $user_id = $profileuser->ID;
-                    $groups = get_user_meta( $user_id ,'group_id', true );                    
-                    $ids = implode(',', $groups);
-                    foreach ($groups as $groups_ids) {
-                    $posts = query_posts(array('p' => $groups_ids,'post_type'=> 'group'));
-                    print_r($posts->post_title);
-                    foreach ($posts as $post) {
-                          echo $post->post_title;
-                      }  
-                      echo ',';
-                  }
-                    ?>" class="regular-text groups" readonly/></td>
-                </tr>
-            </table>
-            <?php
-        }*/  
+        public function add_lp_meta_boxes(){
+            add_meta_box(
+                sprintf('lp_post_%s_section', self::POST_TYPE),
+                sprintf('Add LPs'),
+                array(&$this, 'add_inner_lp_meta_boxes'),
+                self::POST_TYPE
+                );
+        }
+        public function add_inner_lp_meta_boxes($post)
+        {       
+            // Render the job order meta box
+            include(sprintf("%s/../templates/lp_metabox.php", dirname(__FILE__), self::POST_TYPE));
+        } // END public function add_inner_meta_boxes($post)
         public function show_group_ids($post_id){ ?>
         <h3>Groups</h3>
         <table class="form-table">
             <tr>
                 <th><label>Groups</label></th> 
                 <td><select id="add_groups" class="chosen-select reguler-text" name="group_ids[]" multiple="multiple" >
-                  <?php 
-                  global $profileuser;
-                  $user_id = $profileuser->ID;
-                  $groups = get_user_meta( $user_id ,'group_id', true );
-                  foreach ($groups as $groups_ids) {
-                    $posts = query_posts(array('p' => $groups_ids,'post_type'=> 'group'));
-                    foreach ($posts as $post) {      
+                <?php 
+                    global $profileuser;
+                    $user_id = $profileuser->ID;
+                    $groups = get_user_meta( $user_id ,'group_id', true );
+                    $posts = query_posts(array('post_type'=> 'group'));
+                    foreach ( $posts as $post) {
                         $is_selected = " ";
-                        if( ( $groups_ids !== false ) && ( array_search($user_id, $groups_ids ) !== false ) ) {
+                        if( ( $groups !== false ) && is_array($groups) && ( array_search($post->ID, $groups ) !== false ) ) {
                             $is_selected = "selected=''"; 
                         }
-                        $to_print = sprintf("<option %s value = ' %s '>%s</option>", $is_selected, $user_id, esc_html($post->post_title) );
+                        $to_print = sprintf("<option %s value='%s'>%s</option>", $is_selected, $post->ID, esc_html( $post->post_title) );
                         echo $to_print;
-                    }  
-                } 
-            }
-            public function save_extra_user_profile_fields($post_id) {
-                global $profileuser;
-                $user_id = $profileuser->ID;
-                $current_group_ids = get_user_meta($user_id,'group_id',true);
-            // if user does not have group_id, we save current $post_id as array
-                if( $current_group_ids == false ) {
-                    update_user_meta( $user_id, 'group_id', array( $post_id ) );
-                    continue;
-                }
-            // if user has the group_id meta field, we need to check if group ID is already there
-                if (array_search($post_id, $current_group_ids ) === false){
-                // current group_id is not there, we add it to current_group_ids array and save
-                    $current_group_ids[] = $post_id;
-                    update_user_meta($user_id, 'group_id',$current_group_ids);
-                } else {
-                // group_id already there, we continue to next user
-                    continue;
+                    } ?> 
+                    </select></td></tr></table>
+                    <?php 
                 }
 
-            }
+        public function save_extra_user_profile_fields($post_id) {
+            $user_id = $_POST['user_id'];
+            $result = update_user_meta($user_id, 'group_id', $_POST['group_ids']);
+            return $result;
+        }        
         // Get all the users for a single group    
-            public function is_user_in_role( $user_id, $roles  ) {
-                $blogusers = get_users( array( 'fields' => array( 'display_name', 'ID' ) ) );
-                $post_id = 5;
-                $group_users = get_post_meta( $post_id, 'm_username',true );
-                $user = new WP_User( $user_id );
-                if ( !empty( $user->roles ) && is_array( $user->roles ) ) {
-                    foreach ( $user->roles as $role )
-                        echo $role;
+        public function get_user_by_role( $post_id, $user_role='') {
+            $group_users = get_post_meta( $post_id, 'm_username',true );
+            if( $user_role != '') {
+                foreach ($group_users as $users) {
+                    $user = new WP_User( $users);
+                    if ( !empty( $user->roles ) && is_array( $user->roles ) ) {
+                        foreach ( $user->roles as $role ) {
+                            if( $role === $user_role ) {
+                                $group_user[] = $users;
+                            }
+                        } 
+                    } 
+                } 
+                return $group_user;
+            } else {
+                return $group_users;
+            }
+        }
+        // Return All the groups using two parameters post_id and post type.
+        public function get_groups($type='', $ID=0){
+            if($type == 'user'){
+                $groups = get_user_meta( $ID ,'group_id', true );
+                if(is_array($groups)){
+                    foreach ($groups as $groups_id) {
+                        $posts = query_posts(array('post_type'=> 'group','posts_per_page' => -1 ));
+                        $ret = array();
+                    }
+                        foreach ($posts as $post) {
+                            $is_selected = array_search($post->ID, $groups);
+                            if( $is_selected !== FALSE ) {
+                                $selected = 1;
+                            } else {
+                                $selected = 0;
+                            }
+                            $ret = array(
+                                "id"    =>  $post->ID,
+                                "name"  =>  $post->post_title,
+                                "selected" => $selected
+                                );
+                            $rets[] = $ret; 
+                    }
+                    return $rets;
                 }
-                    foreach ( $blogusers as $user ) {
-                        if( ( $roles === $role ) && ( array_search($user_id, $group_users ) !== false ) ) {
-                           var_dump($user->display_name); 
-                           echo '<br>';            
-                     }else{
-                           
+            }
+            elseif($type == 'group'){
+            $lp_groups = get_post_meta( $ID, 'm_groups',true );
+            if(is_array($lp_groups)){
+                foreach ($lp_groups as $groups_id) {
+                    $posts = query_posts(array('post_type'=> 'post', 'posts_per_page' => -1 ));
+                    $ret = array();
+                }
+                    foreach ($posts as $post) {
+                        if( ( $lp_groups !== false ) && is_array($lp_groups) && ( array_search($post->ID, $lp_groups ) !== false ) ){
+                            $selected = 1;
+                        } else {
+                            $selected = 0;
                         }
-                }    
-                echo "No Users"; 
+                        $ret = array(
+                            "id"    =>  $post->ID,
+                            "name"  =>  $post->post_title,
+                            "selected" => $selected
+                            );
+                        $rets[] = $ret;
+                    }
+                return $rets;
             }
-            // Return All the groups using two parametes post_id and post type.
-            public function all_the_groups($id, $post_type){
-                $groups = get_user_meta( $id ,'group_id', true );
-                foreach ($groups as $groups_ids) {
-                $posts = query_posts(array('p' => $groups_ids,'post_type'=> $post_type));
-                foreach ($posts as $post) {
-                      echo $post->post_title;
-                  }  
-                  echo ',';
+                 
+            }
+        }
+
+        public function all_groups_for_lp($id=0) {
+            // assuming key is 'm_groups' in LPs
+            $lp_groups = get_post_meta( $id, 'm_groups',true );
+            if(is_array($lp_groups)){
+                foreach ($lp_groups as $groups_id) {
+                    $posts = query_posts(array('post_type'=> 'post', 'posts_per_page' => -1 ));
+                    $ret = array();
+                    foreach ($posts as $post) {
+                        if( ( $lp_groups !== false ) && is_array($lp_groups) && ( array_search($post->ID, $lp_groups ) !== false ) ){
+                            $selected = 1;
+                        } else {
+                            $selected = 0;
+                        }
+                        $ret = array(
+                            "id"    =>  $post->ID,
+                            "name"  =>  $post->post_title,
+                            "selected" => $selected
+                            );
+                        $rets[] = $ret;
+                    } 
                 }
             }
-            //Add user to single group (pass user ID and group ID to that)
-            public function Add_user_to_single_group($user_id , $post_id){
-                    $u_id[] = $user_id;
-                    update_post_meta($post_id,'m_username', $_POST[$u_id]);
-            }
-    } // END class Groups
-} // END if(!class_exists('Groups'))*-+
+                return $rets; 
+        }
+        //Add user to single group (pass user ID and group ID to that)
+        public function Add_user_to_single_group($user_id , $post_id){
+                $group_ids = get_post_meta( $post_id, 'm_username',true );
+                if(is_array($group_ids)) {
+                    $existing = array_search( $user_id, $group_ids );
+                    if( $existing === false ) {
+                        $group_ids[] = $user_id;
+                    }
+                } else {
+                    $group_ids = array($user_id);
+                }
+                $result = update_post_meta($post_id, 'm_username', $group_ids);
 
-  $group = new Groups();
-//$group->all_the_groups(4,'group');
-//$group->is_user_in_role(2,'subscriber');
-//$group->Add_user_to_single_group(1 , 5);
+                return $result;
+        }
+    } // END class Groups
+} // END
+
+
+
+
+
+
+

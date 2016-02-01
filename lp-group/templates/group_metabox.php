@@ -5,7 +5,7 @@
         </th>
         <td>
         <select id="add_users" class="chosen-select" name="m_username[]" multiple="multiple" >
-         <?php $blogusers = get_users( array( 'fields' => array( 'display_name', 'ID' ) ) );
+        <?php $blogusers = get_users( array( 'fields' => array( 'display_name', 'ID' ) ) );
             // get post meta - current post ID
             $post_id = $_REQUEST['post'];
             $group_users = get_post_meta( $post_id, 'm_username',true );

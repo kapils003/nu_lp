@@ -98,13 +98,8 @@ if(!class_exists('Groups'))
 
                         // see if there are any users who are in old group but not new
                         $removed_users = array_diff($old_users, $new_users);
-                    }
-
-                    // Update the post's meta field
-                    if(isset($_POST[$field_name])) {
                         update_post_meta($post_id, $field_name, $_POST[$field_name]);
                     }
-                    
                     if($field_name == 'm_username') {
                         // we have to update the user meta with group ID as well
                         if(isset($_POST['m_username'])){
@@ -149,8 +144,9 @@ if(!class_exists('Groups'))
                                         // if key is not found, then we get FALSE. Else, we get the index of key
                                         if($current_group_index !== FALSE) {
                                             // remove the group from $existing_groups
-                                            // array_splice($existing_groups, $current_group_index,1,array(''));
+                                            //array_splice($existing_groups, $current_group_index,1);
                                             unset($existing_groups[$current_group_index]);
+                                            $existing_groups = array_values($existing_groups);
                                             // update the post_meta
                                             update_user_meta($user_id, 'group_id', $existing_groups);
                                         }
@@ -181,7 +177,25 @@ if(!class_exists('Groups'))
                 } else {
                     $new_groups = array();
                 }
-
+                if(!empty($new_groups)) {
+                    foreach ($new_groups as $group_id) {
+                        // get users for group
+                        $user_list = get_post_meta($group_id, 'm_groups', true);
+                        // if user list is not empty
+                        if(is_array($user_list)) {
+                            // find user index
+                            $user_index = array_search($user_id, $user_list);
+                            if($user_index !== FALSE) {
+                                // remove user from array
+                                unset($user_list[$user_index]);
+                                $user_list = array_values($user_list);
+                                //array_splice($user_list, $user_index);\
+                                //error_log('user list' .print_r($user_list,true));
+                                update_post_meta($group_id, 'm_groups', $user_list);
+                            }
+                        }
+                    }
+                }
                 // see if there are any groups who are in old key but not new
                 $removed_groups = array_diff($old_groups, $new_groups);
                 // if we have removed groups, we update them and remove user_id
@@ -195,9 +209,9 @@ if(!class_exists('Groups'))
                             $user_index = array_search($post_id, $user_list);
                             if($user_index !== FALSE) {
                                 // remove user from array
-                                error_log('user list' .print_r($user_list,true));
-                                // array_splice($user_list, $user_index,1,array(''));
+                                //array_splice($user_list, $user_index);
                                 unset($user_list[$user_index]);
+                                $user_list = array_values($user_list);
                                 update_post_meta($group_id, 'lp_groups', $user_list);
                             }
                         }
@@ -255,7 +269,25 @@ if(!class_exists('Groups'))
                 } else {
                     $new_groups = array();
                 }
-
+                if(!empty($new_groups)) {
+                    foreach ($new_groups as $group_id) {
+                        // get users for group
+                        $user_list = get_post_meta($group_id, 'lp_groups', true);
+                        // if user list is not empty
+                        if(is_array($user_list)) {
+                            // find user index
+                            $user_index = array_search($user_id, $user_list);
+                            if($user_index !== FALSE) {
+                                // remove user from array
+                                unset($user_list[$user_index]);
+                                $user_list = array_values($user_list);
+                                //array_splice($user_list, $user_index);\
+                                //error_log('user list' .print_r($user_list,true));
+                                update_post_meta($group_id, 'lp_groups', $user_list);
+                            }
+                        }
+                    }
+                }
                 // see if there are any groups who are in old key but not new
                 $removed_groups = array_diff($old_groups, $new_groups);
                 // if we have removed groups, we update them and remove user_id
@@ -269,8 +301,9 @@ if(!class_exists('Groups'))
                             $user_index = array_search($post_id, $user_list);
                             if($user_index !== FALSE) {
                                 // remove user from array
-                                // array_splice($user_list, $user_index,1,array());
+                                //array_splice($user_list, $user_index);
                                 unset($user_list[$user_index]);
+                                $user_list = array_values($user_list);
                                 update_post_meta($group_id, 'm_groups', $user_list);
                             }
                         }
@@ -388,9 +421,9 @@ if(!class_exists('Groups'))
             public function save_extra_user_profile_fields($post_id) {
             
                 $user_id = $_POST['user_id'];
-
                 // if we are updating m_username, we need old value to compare
                 $old_groups = get_user_meta($user_id, 'group_id', true);
+                //error_log('user id' .print_r($old_groups,true));
                 if(isset($_POST['group_ids'])) {
                     $new_groups = $_POST['group_ids'];
                 } else {
@@ -407,10 +440,8 @@ if(!class_exists('Groups'))
                 } else {
                     $new_groups = array();
                 }
-
                 // see if there are any groups who are in old key but not new
                 $removed_groups = array_diff($old_groups, $new_groups);
-                error_log('Removed groups ' . print_r($removed_groups,true));
                 // if we have removed groups, we update them and remove user_id
                 if(!empty($removed_groups)) {
                     foreach ($removed_groups as $group_id) {
@@ -422,12 +453,10 @@ if(!class_exists('Groups'))
                             $user_index = array_search($user_id, $user_list);
                             if($user_index !== FALSE) {
                                 // remove user from array
-                                error_log('user list ' . print_r($user_list,true));
-                                error_log('user Index: ' . $user_index);
-                                // array_splice($user_list, $user_index,1,array(''));
                                 unset($user_list[$user_index]);
-                                error_log('user list after splice' . print_r($user_list,true));
-                                error_log('Removed groups ' . print_r($group_id,true));
+                                $user_list = array_values($user_list);
+                                //array_splice($user_list, $user_index);\
+                                //error_log('user list' .print_r($user_list,true));
                                 update_post_meta($group_id, 'm_username', $user_list);
                             }
                         }
@@ -435,21 +464,23 @@ if(!class_exists('Groups'))
                 }
 
                 // for each group, we add the user if they are not already there
-                foreach ($new_groups as $group_id) {
-                    // get group meta
-                    $user_list = get_post_meta($group_id, 'm_username', true);
-                    // we are saving as array for group. It it's anything else, incorrect
-                    if(is_array($user_list)){
-                        // we save only if user is not in list already
-                        if(array_search($user_id, $user_list) === FALSE) {
-                            // add to existing list
-                            $user_list[] = $user_id;
-                            // save to DB
-                            update_post_meta($group_id, 'm_username', $user_list);
+               if(!empty($new_groups)) {
+                    foreach ($new_groups as $group_id) {
+                        // get users for group
+                        $group_ids = get_post_meta( $group_id, 'm_username',true );   
+                          if(is_array($group_ids)) {
+                            $existing = array_search( $user_id, $group_ids );
+                            if( $existing === false ) {
+                                $group_ids[] = $user_id;
+                            }
+                        } else {
+                            $group_ids = array($user_id);
                         }
+                        $result = update_post_meta($group_id, 'm_username', $group_ids);
+
+                       return $result;
                     }
                 }
-
                 $result = update_user_meta($user_id, 'group_id', $new_groups);
                 return $result; 
             }        
@@ -549,7 +580,6 @@ if(!class_exists('Groups'))
                         return 'false';
                     }
                     $groups = get_user_meta( $ID ,'user_posts', true );
-                    error_log(print_r($groups,true));
                     if(is_array($groups)){
                         $posts = query_posts(array('post_type'=> 'post','posts_per_page' => -1 ));
                         foreach ($posts as $post) {
